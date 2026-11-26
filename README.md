@@ -35,19 +35,43 @@ Individu berusia **≥ 18 tahun** yang rutin memanfaatkan AI untuk belajar maupu
 
 ## ✨ Fitur Utama (Full CRUD & Local-First Privacy)
 
-* **📇 CRUD Kartu Konteks (5 Isian):** Menyimpan *Tujuan*, *Audiens/Standar Mutu*, *Batas Etika & Sumber*, *Format/Bahasa*, dan *Data Terlarang* dalam satu kartu—dilengkapi templat cepat (*Laporan, Kode, Desain, Konten*) dan tombol **Salin Kartu 1 Klik** untuk ditempel ke *prompt* AI.
+* **📇 CRUD Kartu Konteks (5 Isian):** Menyimpan *Tujuan*, *Audiens/Standar Mutu*, *Batas Etika & Sumber*, *Format/Bahasa*, dan *Data Terlarang* dalam satu kartu. Dilengkapi templat cepat (*Laporan, Kode, Desain, Konten*), pencarian, filter mode, duplikasi kartu, serta tombol **Salin Kartu 1 Klik** untuk ditempel ke *prompt* AI.
 * **🔍 Pemindai Berbasis Aturan (*Rule-Based Engine*):** Mendeteksi potensi kebocoran data terlarang, pola kredensial sensitif, angka/klaim statistik tanpa rujukan sumber, serta sisa teks mentah AI secara **100% lokal di perangkat** tanpa mengirim teks ke server eksternal.
-* **✅ Daftar Periksa Per Mode (≤ 5 Butir):** Panduan verifikasi terstruktur yang menyesuaikan standar tiap konteks: mode **Kuliah**, **Kerja**, dan **Klien** dengan status *Belum / Sudah / Diubah*.
-* **⏱️ Stopwatch & Catatan Jejak 3 Tahap:** Memantau durasi sesi (target **≤ 5 menit** per tugas) serta mendokumentasikan ringkasan proses **Diminta → Diperiksa → Diubah**.
-* **📄 Ekspor & Bagikan PDF 1 Halaman:** Menghasilkan dokumen ringkasan jejak verifikasi siap kirim ke dosen, atasan, atau klien langsung dari perangkat (*client-side PDF generation*), lengkap dengan pernyataan etika dan kontrol penghapusan data sesuai **UU PDP**.
+* **✅ Daftar Periksa Per Mode (≤ 5 Butir):** Panduan verifikasi terstruktur yang menyesuaikan standar tiap konteks: mode **Kuliah**, **Kerja**, dan **Klien** dengan status *Belum / Sudah / Diubah*, progress bar, dan reset cepat.
+* **⏱️ Stopwatch & Catatan Jejak 3 Tahap:** Memantau durasi sesi (target **≤ 5 menit** per tugas) serta mendokumentasikan ringkasan proses **Diminta → Diperiksa → Diubah** dan kesimpulan verifikator.
+* **📄 Ekspor & Bagikan PDF:** Menghasilkan dokumen ringkasan jejak verifikasi siap kirim ke dosen, atasan, atau klien langsung dari perangkat (*client-side PDF generation*), lengkap dengan pernyataan etika dan kontrol penghapusan data sesuai **UU PDP**.
+* **📊 Dashboard Aktivitas:** Ringkasan jejak hari ini, total sesi, rata-rata durasi, isu tertangkap, grafik aktivitas 7 hari, dan *streak* kedisiplinan verifikasi.
+* **🎨 Design System & Tema:** Token warna Terang/Gelap/Sistem, ukuran teks Normal/Besar yang tersimpan di perangkat, tipografi **Plus Jakarta Sans** & **IBM Plex Mono**, top bar dengan status privasi, serta komponen reusable (kartu, badge, banner, segmented control, empty/error state, skeleton).
+* **💾 Cadangan Data Lokal:** Ekspor & impor seluruh Kartu Konteks + Jejak Verifikasi dalam satu file JSON, tanpa server.
+
 
 ---
 
 ## 🛠️ Arsitektur & Teknologi
 
 * **Frontend Mobile:** Kotlin, Jetpack Compose, Material Design 3, Material Icons Extended, Navigation Compose.
+* **Design System:** Token warna light/dark, tipografi Plus Jakarta Sans & IBM Plex Mono, komponen reusable — diadaptasi dari design system aplikasi **TokoJoJo Stock** (`tokojojo-cloud-pos-demo/apps/android`).
 * **Backend Lokal (*Offline-First*):** Room Database (SQLite) untuk operasi CRUD Kartu Konteks & Riwayat Jejak, `RuleVerificationEngine` (Regex & Heuristic Analyzer), serta Android `PdfDocument` API.
+* **Preferensi & Cadangan:** SharedPreferences untuk tema/ukuran teks/mode default, plus ekspor-impor JSON lokal.
 * **Backend Server (Opsional):** Kotlin Ktor REST API untuk sinkronisasi templat *checklist* tim/Pro dan telemetri statistik anonim (tanpa menyimpan teks tugas pengguna).
+
+---
+
+## 🔄 Adopsi dari TokoJoJo Stock (`apps/android`)
+
+KonteksCek dan TokoJoJo Stock sama-sama offline-first, tetapi basis kodenya berbeda. Yang diadopsi ke KonteksCek:
+
+| Aspek | TokoJoJo Stock | Diterapkan di KonteksCek |
+| :--- | :--- | :--- |
+| Design token | `TokoJojoColors` + `LocalTokoColors` | `KonteksColors` + `LocalKonteksColors` (Terang/Gelap) |
+| Tipografi | Plus Jakarta Sans + IBM Plex Mono | Font & skala teks yang sama, plus opsi Ukuran Besar |
+| Komponen | `TokoCard`, `SectionHeader`, `InfoBanner`, `StatCard`, `SegmentedControl`, `SettingsRow`, `EmptyState`, `SkeletonBlock` | `KonteksCard`, `SectionHeader`, `InfoBanner`, `StatTile`, `SegmentedControl`, `SettingsRow`, `EmptyState`, `SkeletonBlock` |
+| Tema | `ThemeMode` / `TextSize` + SharedPreferences | Idem, ditambah mode default & stopwatch otomatis |
+| Shell aplikasi | Top bar + chip status + bottom bar | `KonteksTopBar` + chip "Lokal" + 5 tab (Beranda/Kartu/Cek AI/Jejak/Lainnya) |
+| Layar pengaturan | `MoreScreen` | `SettingsScreen` (tampilan, verifikasi, data, privasi, tentang) |
+
+Yang **tidak** diadopsi karena tidak relevan dengan domain verifikasi AI: Apollo GraphQL, Metro DI, Navigation3, kamera/ML Kit barcode, serta modul stok/gudang.
+
 
 ---
 

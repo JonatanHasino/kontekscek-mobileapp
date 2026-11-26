@@ -1,43 +1,114 @@
 package com.aldointelligence.kontekscek.ui.theme
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.Density
+import androidx.core.view.WindowCompat
+import com.aldointelligence.kontekscek.data.TextSize
+import com.aldointelligence.kontekscek.data.ThemeMode
 
-object CyberColors {
-    val DeepSpace = Color(0xFF070D19)      // Background utama futuristik
-    val NavySurface = Color(0xFF0F1A2E)    // Kartu glassmorphic
-    val NavyElevated = Color(0xFF162544)   // Permukaan elevasi
-    val NeonCyan = Color(0xFF06B6D4)       // Aksen utama futuristik
-    val ElectricBlue = Color(0xFF3B82F6)   // Identitas kepercayaan KonteksCek
-    val VerifiedEmerald = Color(0xFF10B981)// Status Lolos / Centang
-    val WarningAmber = Color(0xFFF59E0B)   // Status Diubah / Peringatan
-    val AlertCoral = Color(0xFFF43F5E)     // Status Kritis / Data Terlarang
-    val TextPrimary = Color(0xFFF8FAFC)
-    val TextSecondary = Color(0xFF94A3B8)
-    val BorderGlow = Color(0x4406B6D4)
-}
+val LocalKonteksColors = staticCompositionLocalOf { LightKonteksColors }
 
-private val KonteksCekColorScheme = darkColorScheme(
-    primary = CyberColors.NeonCyan,
-    onPrimary = CyberColors.DeepSpace,
-    secondary = CyberColors.VerifiedEmerald,
-    onSecondary = CyberColors.DeepSpace,
-    tertiary = CyberColors.ElectricBlue,
-    background = CyberColors.DeepSpace,
-    onBackground = CyberColors.TextPrimary,
-    surface = CyberColors.NavySurface,
-    onSurface = CyberColors.TextPrimary,
-    surfaceVariant = CyberColors.NavyElevated,
-    onSurfaceVariant = CyberColors.TextSecondary,
-    error = CyberColors.AlertCoral
-)
+private val LightScheme =
+    lightColorScheme(
+        primary = LightKonteksColors.primary,
+        onPrimary = LightKonteksColors.onPrimary,
+        primaryContainer = LightKonteksColors.primarySoft,
+        onPrimaryContainer = LightKonteksColors.primaryPressed,
+        secondary = LightKonteksColors.accent,
+        onSecondary = Color.White,
+        secondaryContainer = LightKonteksColors.accentSoft,
+        onSecondaryContainer = LightKonteksColors.accent,
+        tertiary = LightKonteksColors.success,
+        background = LightKonteksColors.canvas,
+        onBackground = LightKonteksColors.ink,
+        surface = LightKonteksColors.surface,
+        onSurface = LightKonteksColors.ink,
+        surfaceVariant = LightKonteksColors.surfaceMuted,
+        onSurfaceVariant = LightKonteksColors.inkSecondary,
+        outline = LightKonteksColors.lineStrong,
+        outlineVariant = LightKonteksColors.line,
+        error = LightKonteksColors.danger,
+        onError = Color.White,
+    )
+
+private val DarkScheme =
+    darkColorScheme(
+        primary = DarkKonteksColors.primary,
+        onPrimary = DarkKonteksColors.onPrimary,
+        primaryContainer = DarkKonteksColors.primarySoft,
+        onPrimaryContainer = DarkKonteksColors.primary,
+        secondary = DarkKonteksColors.accent,
+        onSecondary = DarkKonteksColors.onInverse,
+        secondaryContainer = DarkKonteksColors.accentSoft,
+        onSecondaryContainer = DarkKonteksColors.accent,
+        tertiary = DarkKonteksColors.success,
+        background = DarkKonteksColors.canvas,
+        onBackground = DarkKonteksColors.ink,
+        surface = DarkKonteksColors.surface,
+        onSurface = DarkKonteksColors.ink,
+        surfaceVariant = DarkKonteksColors.surfaceMuted,
+        onSurfaceVariant = DarkKonteksColors.inkSecondary,
+        outline = DarkKonteksColors.lineStrong,
+        outlineVariant = DarkKonteksColors.line,
+        error = DarkKonteksColors.danger,
+        onError = DarkKonteksColors.onInverse,
+    )
 
 @Composable
-fun KonteksCekTheme(content: @Composable () -> Unit) {
-    MaterialTheme(
-        colorScheme = KonteksCekColorScheme,
-        content = content
-    )
+fun KonteksCekTheme(
+    mode: ThemeMode = ThemeMode.SYSTEM,
+    textSize: TextSize = TextSize.NORMAL,
+    content: @Composable () -> Unit,
+) {
+    val dark =
+        when (mode) {
+            ThemeMode.LIGHT -> false
+            ThemeMode.DARK -> true
+            ThemeMode.SYSTEM -> isSystemInDarkTheme()
+        }
+    val colors = if (dark) DarkKonteksColors else LightKonteksColors
+    val density = LocalDensity.current
+    val scale = if (textSize == TextSize.LARGE) 1.12f else 1f
+    val view = LocalView.current
+
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = view.context.findActivity()?.window ?: return@SideEffect
+            WindowCompat.getInsetsController(window, view).apply {
+                isAppearanceLightStatusBars = !dark
+                isAppearanceLightNavigationBars = !dark
+            }
+        }
+    }
+
+    CompositionLocalProvider(
+        LocalKonteksColors provides colors,
+        LocalDensity provides Density(density.density, density.fontScale * scale),
+    ) {
+        MaterialTheme(
+            colorScheme = if (dark) DarkScheme else LightScheme,
+            typography = KonteksTypography,
+            content = content,
+        )
+    }
 }
+
+private tailrec fun Context.findActivity(): Activity? =
+    when (this) {
+        is Activity -> this
+        is ContextWrapper -> baseContext.findActivity()
+        else -> null
+    }

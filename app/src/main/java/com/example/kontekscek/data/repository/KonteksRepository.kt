@@ -12,6 +12,10 @@ class KonteksRepository(private val dao: KonteksDao) {
 
     suspend fun getCardById(id: Long): ContextCardEntity? = dao.getCardById(id)
 
+    suspend fun getAllCards(): List<ContextCardEntity> = dao.getAllCards()
+
+    suspend fun getAllLogs(): List<VerificationLogEntity> = dao.getAllLogs()
+
     suspend fun saveCard(card: ContextCardEntity): Long {
         return if (card.id == 0L) {
             dao.insertCard(card)
@@ -35,4 +39,28 @@ class KonteksRepository(private val dao: KonteksDao) {
     suspend fun deleteLog(log: VerificationLogEntity) = dao.deleteLog(log)
 
     suspend fun purgeAllLogs() = dao.purgeAllLogs()
+
+    /**
+     * Impor cadangan JSON. ID lama dipetakan ulang agar tidak bentrok dengan
+     * data yang sudah ada, dan relasi kartu -> jejak tetap terjaga.
+     */
+    suspend fun restoreBackup(
+        cards: List<ContextCardEntity>,
+        logs: List<VerificationLogEntity>,
+    ): Pair<Int, Int> {
+        val idMap = mutableMapOf<Long, Long>()
+        cards.forEach { card ->
+            val newId = dao.insertCard(card.copy(id = 0L))
+            idMap[card.id] = newId
+        }
+        logs.forEach { log ->
+            dao.insertLog(
+                log.copy(
+                    id = 0L,
+                    cardId = idMap[log.cardId] ?: 0L,
+                ),
+            )
+        }
+        return cards.size to logs.size
+    }
 }

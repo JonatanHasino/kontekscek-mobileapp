@@ -12,6 +12,9 @@ interface KonteksDao {
     @Query("SELECT * FROM context_cards ORDER BY updatedAt DESC")
     fun observeAllCards(): Flow<List<ContextCardEntity>>
 
+    @Query("SELECT * FROM context_cards ORDER BY updatedAt DESC")
+    suspend fun getAllCards(): List<ContextCardEntity>
+
     @Query("SELECT * FROM context_cards WHERE id = :id LIMIT 1")
     suspend fun getCardById(id: Long): ContextCardEntity?
 
@@ -27,6 +30,9 @@ interface KonteksDao {
     // ===== CRUD JEJAK VERIFIKASI =====
     @Query("SELECT * FROM verification_logs ORDER BY createdAt DESC")
     fun observeAllLogs(): Flow<List<VerificationLogEntity>>
+
+    @Query("SELECT * FROM verification_logs ORDER BY createdAt DESC")
+    suspend fun getAllLogs(): List<VerificationLogEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLog(log: VerificationLogEntity): Long
