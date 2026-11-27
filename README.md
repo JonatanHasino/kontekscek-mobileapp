@@ -79,11 +79,36 @@ Yang **tidak** diadopsi karena tidak relevan dengan domain verifikasi AI: Apollo
 
 1. **Clone repositori ini:**
    ```bash
-   git clone https://github.com/username-kamu/KonteksCek.git
+   git clone https://github.com/JonatanHasino/kontekscek-mobileapp.git
    ```
 2. **Buka di Android Studio** (versi Koala / Ladybug atau lebih baru dengan JDK 17).
 3. Tunggu proses **Gradle Sync** selesai mengunduh dependensi Jetpack Compose dan Room.
 4. Jalankan aplikasi pada Emulator Android (API 26+) atau perangkat fisik melalui tombol **Run (`Shift + F10`)**.
+
+---
+
+## 🤖 CI & Rilis APK Otomatis
+
+[![Android CI](https://github.com/JonatanHasino/kontekscek-mobileapp/actions/workflows/android.yml/badge.svg)](https://github.com/JonatanHasino/kontekscek-mobileapp/actions/workflows/android.yml)
+
+Workflow `.github/workflows/android.yml` berjalan pada setiap push/PR ke `main`, dan selalu menyimpan APK sebagai artifact:
+
+- **Artifact:** tab *Actions* → pilih run → bagian **Artifacts** → `kontekscek-apk` (berisi `KonteksCek-v<versi>.apk` + `SHA256SUMS.txt`, disimpan 30 hari).
+- **GitHub Release:** dibuat otomatis saat push tag `v*`.
+
+Cara merilis versi baru:
+
+```bash
+# 1. Ubah versionCode & versionName di app/build.gradle.kts
+# 2. Commit, lalu buat dan push tag
+git tag v1.1.0
+git push origin main
+git push origin v1.1.0
+```
+
+Setelah workflow selesai, APK dapat diunduh di halaman
+[Releases](https://github.com/JonatanHasino/kontekscek-mobileapp/releases).
+APK di-sign dengan debug key untuk *sideloading* (bukan untuk Play Store) dan mendukung Android 8.0 (API 26) ke atas.
 
 ---
 
