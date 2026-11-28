@@ -141,8 +141,8 @@ Rilis versi baru:
 git add . && git commit -m "feat: ..."
 git push origin main
 
-git tag v2.0.0-beta1     # atau v2.0.0 untuk stabil
-git push origin v2.0.0-beta1
+git tag v2.0.0-beta3     # atau v2.0.0 untuk stabil
+git push origin v2.0.0-beta3
 ```
 
 APK release memakai **debug key** untuk sideloading (bukan Play Store), seperti build demo.

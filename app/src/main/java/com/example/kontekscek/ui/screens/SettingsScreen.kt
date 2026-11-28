@@ -135,7 +135,7 @@ fun SettingsScreen(
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 TextBadge(label = "$totalCards preset", tone = Tone.PRIMARY)
                 TextBadge(label = "$totalLogs arsip", tone = Tone.INFO)
-                TextBadge(label = "v2.0.0-beta1", tone = Tone.NEUTRAL)
+                TextBadge(label = "v2.0.0-beta3", tone = Tone.NEUTRAL)
             }
             Spacer(Modifier.height(8.dp))
             Text(
@@ -270,7 +270,7 @@ fun SettingsScreen(
         SettingsSection("Tentang") {
             Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(
-                    "KonteksCek 2.0.0-beta1",
+                    "KonteksCek 2.0.0-beta3",
                     color = colors.ink,
                     fontFamily = PlusJakarta,
                     fontSize = 13.sp,

@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.aldointelligence.kontekscek"
-version = "2.0.0-beta1"
+version = "2.0.0-beta3"
 
 repositories {
     mavenCentral()
