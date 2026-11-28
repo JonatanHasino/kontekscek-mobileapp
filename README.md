@@ -1,5 +1,9 @@
 # 🛡️ KonteksCek — Prompt Coach
 
+<p align="center">
+  <img src="design/logo-preview.png" width="180" alt="Logo KonteksCek — bubble chat dengan centang" />
+</p>
+
 > **Prompt-mu dicek. Dibenerin. Hasil AI lebih tepat.**
 >
 > Tempel/bagikan prompt + jawaban AI → dapatkan diagnosis, prompt perbaikan, dan cek kesesuaian jawaban.
