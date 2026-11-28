@@ -10,7 +10,7 @@ import com.aldointelligence.kontekscek.data.model.VerificationLogEntity
 @Database(
     entities = [ContextCardEntity::class, VerificationLogEntity::class],
     version = 2,
-    exportSchema = false
+    exportSchema = true
 )
 abstract class KonteksDatabase : RoomDatabase() {
     abstract fun konteksDao(): KonteksDao
@@ -25,7 +25,10 @@ abstract class KonteksDatabase : RoomDatabase() {
                     context.applicationContext,
                     KonteksDatabase::class.java,
                     "kontekscek_local_db"
-                ).fallbackToDestructiveMigration(dropAllTables = true).build()
+                )
+                    .fallbackToDestructiveMigrationFrom(true, 1)
+                    .fallbackToDestructiveMigrationOnDowngrade(true)
+                    .build()
                 INSTANCE = instance
                 instance
             }

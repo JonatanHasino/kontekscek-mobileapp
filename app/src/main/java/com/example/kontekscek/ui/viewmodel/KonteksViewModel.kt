@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.aldointelligence.kontekscek.data.AppPreferences
+import com.aldointelligence.kontekscek.data.AiPreferences
 import com.aldointelligence.kontekscek.data.KonteksSettings
 import com.aldointelligence.kontekscek.data.SharedPreferencesAppPreferences
 import com.aldointelligence.kontekscek.data.TextSize
@@ -81,7 +82,7 @@ class KonteksViewModel(application: Application) : AndroidViewModel(application)
     private val _session = MutableStateFlow(VerifySessionState())
     val session: StateFlow<VerifySessionState> = _session.asStateFlow()
 
-    private val _toastMessage = MutableSharedFlow<String>()
+    private val _toastMessage = MutableSharedFlow<String>(extraBufferCapacity = 16)
     val toastMessage: SharedFlow<String> = _toastMessage.asSharedFlow()
 
     init {
@@ -111,8 +112,6 @@ class KonteksViewModel(application: Application) : AndroidViewModel(application)
             combine(cards, logs) { cardList, logList ->
                 buildMetrics(cardList, logList)
             }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DashboardMetrics())
-
-        seedSampleCardIfEmpty()
     }
 
     private fun buildMetrics(
@@ -492,8 +491,18 @@ class KonteksViewModel(application: Application) : AndroidViewModel(application)
 
     fun purgeAllData() {
         viewModelScope.launch {
-            repository.purgeAllLogs()
-            _toastMessage.emit("Seluruh riwayat jejak telah dibersihkan")
+            runCatching {
+                repository.purgeAllLogs()
+                repository.purgeAllCards()
+                val app = getApplication<Application>()
+                AiPreferences(app).clearAnalysisData()
+                File(app.cacheDir, "pdfs").deleteRecursively()
+                File(app.cacheDir, "backups").deleteRecursively()
+                _session.value = VerifySessionState()
+                _toastMessage.emit("Semua data lokal dibersihkan")
+            }.onFailure { err ->
+                _toastMessage.emit("Gagal membersihkan data: ${err.localizedMessage ?: "kesalahan"}")
+            }
         }
     }
 

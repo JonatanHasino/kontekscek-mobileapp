@@ -89,7 +89,7 @@ fun VerifySessionScreen(
                             fontWeight = FontWeight.Bold,
                         )
                         Text(
-                            "Target selesai ≤ 5 menit • analisis lokal",
+                            "Mode Manual (lokal penuh) • target selesai ≤ 5 menit",
                             color = colors.inkMuted,
                             fontFamily = PlusJakarta,
                             fontSize = 11.sp,
@@ -487,7 +487,7 @@ fun VerifySessionScreen(
                     Icon(Icons.Rounded.Lock, contentDescription = null, tint = colors.inkMuted, modifier = Modifier.size(11.dp))
                     Spacer(Modifier.width(4.dp))
                     Text(
-                        "PDF dibuat di perangkat • tidak ada unggahan ke server",
+                        "Mode Manual membuat PDF di perangkat • tidak ada unggahan ke server",
                         color = colors.inkMuted,
                         fontFamily = PlusJakarta,
                         fontSize = 10.sp,

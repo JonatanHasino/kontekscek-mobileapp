@@ -17,8 +17,9 @@ import java.util.Date
 import java.util.Locale
 
 /**
- * Generator PDF Jejak Verifikasi Profesional KonteksCek.
- * Desain modern, otomatis multi-halaman (A4 - 595 x 842 pt), 100% lokal & PDP Compliant.
+ * Generator PDF Jejak Verifikasi KonteksCek.
+ * Desain modern, otomatis multi-halaman (A4 - 595 x 842 pt), dibuat di perangkat.
+ * Dokumen mencatat proses pemeriksaan manusia; bukan jaminan kebenaran absolut.
  */
 object PdfExporter {
 
@@ -108,11 +109,11 @@ object PdfExporter {
             c.drawLine(MARGIN_LEFT, footerY, MARGIN_RIGHT, footerY, paintAccentLine)
             
             c.drawText(
-                "Pernyataan Etika: Dokumen ini mencatat proses pemeriksaan manusia terhadap hasil AI.",
+                "Catatan proses pemeriksaan manusia, bukan jaminan kebenaran absolut.",
                 MARGIN_LEFT, footerY + 18f, paintSubTitle
             )
             c.drawText(
-                "Diproses 100% lokal & mematuhi UU PDP.",
+                "Riwayat tersimpan di perangkat pengguna.",
                 MARGIN_LEFT, footerY + 30f, paintSubTitle
             )
             

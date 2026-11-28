@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
 }
 
@@ -12,18 +13,35 @@ android {
         applicationId = "com.aldointelligence.kontekscek"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "1.1.0"
+        versionCode = 3
+        versionName = "2.0.0-beta1"
     }
 
     buildFeatures {
         compose = true
+        buildConfig = true
+    }
+
+    buildTypes {
+        val apiBaseUrl = providers.gradleProperty("kontekscek.apiBaseUrl").getOrElse("")
+        debug {
+            buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
+        }
+        release {
+            isMinifyEnabled = false
+            isShrinkResources = false
+            buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
+        }
     }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+}
+
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
 }
 
 dependencies {
@@ -48,14 +66,19 @@ dependencies {
     implementation("androidx.room:room-ktx:$roomVersion")
     ksp("androidx.room:room-compiler:$roomVersion")
 
-    // Coroutines, JSON & ML Kit Text Extraction (100% Offline Lokal)
+    // Coroutines, JSON & ML Kit Text Extraction (ekstraksi lokal)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.9.0")
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.okhttp)
     implementation("com.google.code.gson:gson:2.11.0")
     implementation("com.google.mlkit:text-recognition:16.0.1")
 
     // Testing
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockwebserver)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation("androidx.room:room-testing:$roomVersion")
 }

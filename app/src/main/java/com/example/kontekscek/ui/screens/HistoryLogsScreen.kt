@@ -17,9 +17,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.aldointelligence.kontekscek.data.LastAnalysis
 import com.aldointelligence.kontekscek.data.model.CheckStatus
 import com.aldointelligence.kontekscek.data.model.TaskMode
 import com.aldointelligence.kontekscek.data.model.VerificationLogEntity
+import com.aldointelligence.kontekscek.domain.model.AnalysisSource
 import com.aldointelligence.kontekscek.ui.components.*
 import com.aldointelligence.kontekscek.ui.theme.Dimens
 import com.aldointelligence.kontekscek.ui.theme.IbmPlexMono
@@ -32,6 +34,8 @@ import java.util.Locale
 @Composable
 fun HistoryLogsScreen(
     logs: List<VerificationLogEntity>,
+    lastAnalysis: LastAnalysis? = null,
+    onOpenLastAnalysis: (() -> Unit)? = null,
     onEditLog: (VerificationLogEntity) -> Unit,
     onExportPdf: (VerificationLogEntity) -> Unit,
     onDeleteLog: (VerificationLogEntity) -> Unit,
@@ -111,7 +115,7 @@ fun HistoryLogsScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                "Ringkasan riwayat",
+                                "Arsip jejak lama",
                                 color = colors.ink,
                                 fontFamily = PlusJakarta,
                                 fontSize = 13.5.sp,
@@ -133,15 +137,75 @@ fun HistoryLogsScreen(
             }
         }
 
+        if (lastAnalysis != null && onOpenLastAnalysis != null) {
+            item {
+                KonteksCard(onClick = onOpenLastAnalysis) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        Box(
+                            modifier = Modifier.size(38.dp).background(colors.primarySoft, CircleShape),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                "${lastAnalysis.result.score.overall}",
+                                color = colors.primary,
+                                fontFamily = IbmPlexMono,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                "Analisis terakhir",
+                                color = colors.ink,
+                                fontFamily = PlusJakarta,
+                                fontSize = 13.5.sp,
+                                fontWeight = FontWeight.Bold,
+                            )
+                            Text(
+                                "${lastAnalysis.result.scoreLabel} · ${formatter.format(Date(lastAnalysis.createdAt))}",
+                                color = colors.inkMuted,
+                                fontFamily = PlusJakarta,
+                                fontSize = 11.sp,
+                            )
+                            if (!lastAnalysis.prompt.isNullOrBlank()) {
+                                Text(
+                                    lastAnalysis.prompt.replace("\n", " ").take(90),
+                                    color = colors.inkSecondary,
+                                    fontFamily = PlusJakarta,
+                                    fontSize = 10.5.sp,
+                                    maxLines = 1,
+                                )
+                            } else {
+                                Text(
+                                    "Teks tidak disimpan (opsi privasi aktif)",
+                                    color = colors.inkMuted,
+                                    fontFamily = PlusJakarta,
+                                    fontSize = 10.5.sp,
+                                )
+                            }
+                        }
+                        TextBadge(
+                            label = if (lastAnalysis.result.source == AnalysisSource.REMOTE) "AI" else "Lokal",
+                            tone = if (lastAnalysis.result.source == AnalysisSource.REMOTE) Tone.PRIMARY else Tone.NEUTRAL,
+                        )
+                        Icon(Icons.Rounded.ChevronRight, contentDescription = null, tint = colors.inkMuted)
+                    }
+                }
+            }
+        }
+
         if (filtered.isEmpty()) {
             item {
                 KonteksCard {
                     EmptyState(
                         icon = if (logs.isEmpty()) Icons.Rounded.History else Icons.Rounded.SearchOff,
-                        title = if (logs.isEmpty()) "Belum ada jejak tersimpan" else "Jejak tidak ditemukan",
+                        title = if (logs.isEmpty()) "Belum ada arsip jejak lama" else "Jejak tidak ditemukan",
                         body =
                             if (logs.isEmpty()) {
-                                "Setiap sesi verifikasi yang selesai akan tersimpan di sini, lengkap dengan PDF-nya."
+                                "Arsip ini menyimpan sesi Mode Manual lama. Hasil Cek AI terbaru tampil di atas."
                             } else {
                                 "Coba kata kunci lain atau reset filter mode."
                             },
@@ -181,7 +245,7 @@ fun HistoryLogsScreen(
             title = { Text("Hapus Semua Riwayat?", fontFamily = PlusJakarta, fontWeight = FontWeight.Bold) },
             text = {
                 Text(
-                    "Seluruh catatan jejak verifikasi di perangkat ini akan dihapus permanen sesuai hak penghapusan data UU PDP. Kartu Konteks tidak terhapus.",
+                    "Seluruh catatan jejak lama, kartu konteks, analisis terakhir, dan cache PDF/backup di perangkat ini akan dihapus permanen sesuai hak penghapusan data UU PDP.",
                     color = colors.inkSecondary,
                     fontFamily = PlusJakarta,
                     fontSize = 13.sp,

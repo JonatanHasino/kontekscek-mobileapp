@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.serialization.Serializable
 
 enum class TaskMode(val label: String, val subtitle: String) {
     KULIAH("Kuliah", "Tugas akademik, makalah, riset & etika sitasi"),
@@ -17,6 +18,7 @@ enum class CheckStatus(val label: String) {
     DIUBAH("Diubah")
 }
 
+@Serializable
 enum class AlertSeverity { CRITICAL, WARNING, INFO }
 
 data class ChecklistItemState(
@@ -33,7 +35,7 @@ data class RuleAlert(
 )
 
 /**
- * Tabel CRUD 1: Kartu Konteks (5 Isian Wajib sesuai S-07M)
+ * Tabel CRUD 1: Kartu Konteks (5 isian wajib)
  */
 @Entity(tableName = "context_cards")
 data class ContextCardEntity(
@@ -52,7 +54,7 @@ data class ContextCardEntity(
     fun getTaskMode(): TaskMode = runCatching { TaskMode.valueOf(mode) }.getOrDefault(TaskMode.KULIAH)
 
     /**
-     * Format siap salin 1-klik untuk ditempel ke AI Chatbot (S-07S)
+     * Format siap salin 1-klik untuk ditempel ke AI Chatbot
      */
     fun toCopyablePromptHeader(): String = """
         [KARTU KONTEKS - KONTEKSCEK | MODE: ${getTaskMode().label.uppercase()}]
@@ -68,7 +70,7 @@ data class ContextCardEntity(
 }
 
 /**
- * Tabel CRUD 2: Jejak Verifikasi 3 Tahap & Status Checklist (S-16M / S-01C)
+ * Tabel CRUD 2: Jejak Verifikasi 3 Tahap & Status Checklist
  */
 @Entity(tableName = "verification_logs")
 data class VerificationLogEntity(
@@ -98,7 +100,7 @@ data class VerificationLogEntity(
 
 /**
  * Basis Data Daftar Periksa Berbasis Aturan (<= 5 Butir per Mode)
- * & Templat Cepat Kartu Konteks (S-07E)
+ * & Templat Cepat Kartu Konteks
  */
 object KonteksDefaults {
     fun checklistForMode(mode: TaskMode): List<ChecklistItemState> = when (mode) {

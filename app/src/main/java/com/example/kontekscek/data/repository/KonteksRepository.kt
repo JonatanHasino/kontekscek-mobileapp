@@ -40,6 +40,8 @@ class KonteksRepository(private val dao: KonteksDao) {
 
     suspend fun purgeAllLogs() = dao.purgeAllLogs()
 
+    suspend fun purgeAllCards() = dao.purgeAllCards()
+
     /**
      * Impor cadangan JSON. ID lama dipetakan ulang agar tidak bentrok dengan
      * data yang sudah ada, dan relasi kartu -> jejak tetap terjaga.
@@ -48,19 +50,38 @@ class KonteksRepository(private val dao: KonteksDao) {
         cards: List<ContextCardEntity>,
         logs: List<VerificationLogEntity>,
     ): Pair<Int, Int> {
+        val existingCards = dao.getAllCards()
+        val cardKeyToId = existingCards.associate { (it.title.lowercase().trim() to it.createdAt) to it.id }.toMutableMap()
         val idMap = mutableMapOf<Long, Long>()
+        var insertedCards = 0
+
         cards.forEach { card ->
-            val newId = dao.insertCard(card.copy(id = 0L))
-            idMap[card.id] = newId
+            val key = card.title.lowercase().trim() to card.createdAt
+            val existingId = cardKeyToId[key]
+            if (existingId != null) {
+                idMap[card.id] = existingId
+            } else {
+                val newId = dao.insertCard(card.copy(id = 0L))
+                idMap[card.id] = newId
+                cardKeyToId[key] = newId
+                insertedCards++
+            }
         }
+
+        val existingLogKeys = dao.getAllLogs().map { it.cardTitle.lowercase().trim() to it.createdAt }.toMutableSet()
+        var insertedLogs = 0
         logs.forEach { log ->
-            dao.insertLog(
-                log.copy(
-                    id = 0L,
-                    cardId = idMap[log.cardId] ?: 0L,
-                ),
-            )
+            val key = log.cardTitle.lowercase().trim() to log.createdAt
+            if (existingLogKeys.add(key)) {
+                dao.insertLog(
+                    log.copy(
+                        id = 0L,
+                        cardId = idMap[log.cardId] ?: 0L,
+                    ),
+                )
+                insertedLogs++
+            }
         }
-        return cards.size to logs.size
+        return insertedCards to insertedLogs
     }
 }

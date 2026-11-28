@@ -15,8 +15,7 @@ enum class TextSize(val label: String) {
 }
 
 /**
- * Preferensi tampilan & perilaku aplikasi. Diporting dari pola
- * TokoJoJo Stock (SharedPreferences + antarmuka NoOp untuk test).
+ * Preferensi tampilan & perilaku aplikasi.
  */
 interface AppPreferences {
     fun settings(): KonteksSettings

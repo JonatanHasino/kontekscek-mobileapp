@@ -86,7 +86,7 @@ fun DashboardScreen(
                         fontWeight = FontWeight.ExtraBold,
                         modifier = Modifier.weight(1f),
                     )
-                    TextBadge(label = "100% lokal", tone = Tone.SUCCESS)
+                    TextBadge(label = "Data di perangkat", tone = Tone.SUCCESS)
                 }
                 Spacer(Modifier.height(6.dp))
                 Text(
@@ -100,7 +100,7 @@ fun DashboardScreen(
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     Icon(Icons.Rounded.Lock, contentDescription = null, tint = colors.success, modifier = Modifier.size(13.dp))
                     Text(
-                        "Tidak ada teks tugas yang dikirim keluar perangkat",
+                        "Statistik dihitung dari riwayat verifikasi di perangkat",
                         color = colors.inkMuted,
                         fontFamily = PlusJakarta,
                         fontSize = 10.5.sp,

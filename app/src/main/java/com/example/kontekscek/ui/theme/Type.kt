@@ -8,7 +8,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.aldointelligence.kontekscek.R
 
-/** Font display utama, diporting dari aplikasi TokoJoJo Stock. */
+/** Font display utama aplikasi. */
 val PlusJakarta =
     FontFamily(
         Font(R.font.plus_jakarta_sans_regular, FontWeight.Normal),

@@ -8,7 +8,6 @@ import androidx.compose.ui.graphics.Color
  *
  * Seluruh layar hanya membaca token ini lewat [LocalKonteksColors], sehingga
  * mode Terang/Gelap/Sistem bisa berganti tanpa menyentuh satu pun composable.
- * Token diadaptasi dari design system TokoJoJo Stock (apps/android).
  */
 @Immutable
 data class KonteksColors(

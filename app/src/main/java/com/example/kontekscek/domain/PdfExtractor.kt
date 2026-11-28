@@ -16,7 +16,8 @@ import java.util.zip.InflaterInputStream
 
 /**
  * Ekstraktor Teks PDF Hibrida (PdfRenderer + ML Kit Text Recognition Local & Fallback Stream Parser).
- * Membaca PDF digital mau pun terenkripsi/CID-font/scanned gambar dengan akurasi 100% lokal.
+ * Membaca PDF digital, PDF scan, dan beberapa PDF terenkripsi/CID-font.
+ * Diproses lokal di perangkat; akurasi bergantung pada kualitas file/OCR.
  */
 object PdfExtractor {
 

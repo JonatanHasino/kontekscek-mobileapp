@@ -6,16 +6,18 @@ import com.aldointelligence.kontekscek.data.model.ContextCardEntity
 import com.aldointelligence.kontekscek.data.model.VerificationLogEntity
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
+import java.io.InputStream
 
 /**
- * Cadangan data lokal (JSON) supaya pengguna bisa memindahkan Kartu Konteks &
- * Jejak Verifikasi tanpa server. Tetap 100% lokal & bisa dihapus kapan saja.
+ * Cadangan data lokal (JSON) untuk memindahkan Preset Konteks & arsip jejak.
+ * Backup v1 tetap dapat dibaca; versi 2 menambahkan validasi format.
  */
 object BackupManager {
 
-    private const val FORMAT_VERSION = 1
+    private const val FORMAT_VERSION = 2
 
     data class BackupPayload(
         val app: String = "KonteksCek",
@@ -44,9 +46,34 @@ object BackupManager {
     fun read(context: Context, uri: Uri): BackupPayload {
         val raw =
             context.contentResolver.openInputStream(uri)?.use { stream ->
-                stream.readBytes().toString(Charsets.UTF_8)
+                stream.readLimited(MAX_BACKUP_BYTES).toString(Charsets.UTF_8)
             } ?: error("File cadangan tidak dapat dibaca")
-        return gson.fromJson(raw, BackupPayload::class.java)
-            ?: error("Format file cadangan tidak dikenali")
+        val payload =
+            runCatching { gson.fromJson(raw, BackupPayload::class.java) }
+                .getOrElse { error("File cadangan bukan JSON yang valid.") }
+                ?: error("Format file cadangan tidak dikenali")
+        if (payload.app != "KonteksCek") {
+            error("File ini bukan cadangan KonteksCek.")
+        }
+        if (payload.version !in 1..FORMAT_VERSION) {
+            error("Cadangan berasal dari versi aplikasi yang lebih baru.")
+        }
+        return payload
+    }
+
+    private const val MAX_BACKUP_BYTES = 20 * 1024 * 1024
+
+    private fun InputStream.readLimited(maxBytes: Int): ByteArray {
+        val output = ByteArrayOutputStream()
+        val buffer = ByteArray(8 * 1024)
+        var total = 0
+        while (true) {
+            val read = read(buffer)
+            if (read < 0) break
+            total += read
+            if (total > maxBytes) error("File cadangan terlalu besar (maksimal 20 MB).")
+            output.write(buffer, 0, read)
+        }
+        return output.toByteArray()
     }
 }

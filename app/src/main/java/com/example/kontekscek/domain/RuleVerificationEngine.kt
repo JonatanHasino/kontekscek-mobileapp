@@ -13,8 +13,9 @@ data class RuleAnalysisResult(
 )
 
 /**
- * Mesin Analisis Berbasis Aturan (Rule-Based Engine - S-01S & S-01E)
- * Berjalan 100% lokal di perangkat tanpa mengirim teks ke API/server pihak ketiga.
+ * Mesin Analisis Berbasis Aturan (legacy).
+ * Berjalan lokal di perangkat tanpa mengirim teks. Analisis Prompt Coach memakai
+ * server AI dengan Privacy Guard lokal.
  */
 object RuleVerificationEngine {
 

@@ -47,7 +47,9 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Unit tests & build debug APK
-        run: ./gradlew :app:testDebugUnitTest :app:assembleDebug --stacktrace --no-daemon
+        env:
+          KONTEKSCEK_API_BASE_URL: ${{ vars.KONTEKSCEK_API_BASE_URL }}
+        run: ./gradlew :app:testDebugUnitTest :app:assembleDebug -Pkontekscek.apiBaseUrl="${KONTEKSCEK_API_BASE_URL:-}" --stacktrace --no-daemon
 
       - name: Prepare APK artifact
         run: |
@@ -73,6 +75,28 @@ jobs:
           path: dist/*
           if-no-files-found: error
           retention-days: 30
+
+  backend:
+    name: Build backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Set up JDK 21
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
+      - name: Build Ktor backend
+        working-directory: backend-ktor
+        run: ../gradlew build --no-daemon
 
   release:
     name: Publish GitHub Release
@@ -104,17 +128,18 @@ jobs:
           SHA256=$(cut -d' ' -f1 release/SHA256SUMS.txt)
 
           {
-            echo "KonteksCek adalah aplikasi Android untuk memeriksa kesesuaian konteks"
-            echo "output AI dan mencatat jejak verifikasi manusia, 100% lokal di perangkat."
+            echo "KonteksCek adalah Prompt Coach Android untuk memeriksa dan memperbaiki prompt AI,"
+            echo "menyensor data sensitif di perangkat, lalu mencatat jejak verifikasi manusia."
             echo ""
             echo "## Fitur"
             echo ""
-            echo "- Kartu Konteks 5 isian: tujuan, audiens/standar mutu, etika & sumber, format/bahasa, data terlarang."
-            echo "- Pemindai berbasis aturan: kebocoran data terlarang, pola kredensial, klaim angka tanpa sumber, teks placeholder AI."
-            echo "- Daftar periksa per mode (Kuliah, Kerja, Klien) dengan status Belum / Sudah / Diubah."
-            echo "- Stopwatch target <= 5 menit dan catatan jejak 3 tahap (diminta -> diperiksa -> diubah)."
-            echo "- Ekspor PDF jejak verifikasi dan cadangan data JSON, seluruhnya diproses di perangkat."
-            echo "- Tema terang/gelap/sistem, ukuran teks, dashboard aktivitas 7 hari dan streak."
+            echo "- Cek prompt + jawaban AI: skor 0-100, masalah, prompt perbaikan siap salin."
+            echo "- Privacy Guard lokal: API key, password, email, nomor HP, kartu/NIK disensor sebelum dikirim."
+            echo "- Share Sheet & Process Text: kirim teks dari ChatGPT/Gemini/Chrome/WhatsApp ke KonteksCek."
+            echo "- Cek jawaban AI, pertanyaan klarifikasi, dan prompt tindak lanjut."
+            echo "- Lint lokal offline saat server belum diatur atau tidak tersedia."
+            echo "- Mode Manual lama (lokal penuh), PDF jejak, preset konteks, dan cadangan JSON."
+            echo "- Tema terang/gelap/sistem dan ukuran teks Besar."
             echo ""
             echo "## Instalasi"
             echo ""
@@ -123,7 +148,8 @@ jobs:
             echo "3. Buka APK lalu instal."
             echo ""
             echo "APK ini di-sign dengan debug key untuk sideloading, bukan untuk Play Store."
-            echo "Minimal Android 8.0 (API 26). Tidak perlu server atau koneksi internet."
+            echo "Minimal Android 8.0 (API 26). Tanpa server, aplikasi memakai lint lokal;"
+            echo "isi URL server di Pengaturan untuk analisis AI."
             echo ""
             echo "### SHA-256"
             echo ""
@@ -138,11 +164,15 @@ jobs:
             gh release upload "$TAG" "$APK" release/SHA256SUMS.txt --repo "$GITHUB_REPOSITORY" --clobber
             gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "KonteksCek $TAG" --notes-file notes.md
           else
+            RELEASE_FLAG="--latest"
+            case "$TAG" in
+              *beta*|*rc*) RELEASE_FLAG="--prerelease" ;;
+            esac
             gh release create "$TAG" "$APK" release/SHA256SUMS.txt \
               --repo "$GITHUB_REPOSITORY" \
               --title "KonteksCek $TAG" \
               --notes-file notes.md \
-              --latest
+              $RELEASE_FLAG
           fi
 
       - name: Release summary

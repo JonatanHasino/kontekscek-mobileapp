@@ -45,4 +45,7 @@ interface KonteksDao {
 
     @Query("DELETE FROM verification_logs")
     suspend fun purgeAllLogs()
+
+    @Query("DELETE FROM context_cards")
+    suspend fun purgeAllCards()
 }
